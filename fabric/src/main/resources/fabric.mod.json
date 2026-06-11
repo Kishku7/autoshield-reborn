@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "autoshield_reborn",
+  "version": "${version}",
+  "name": "Auto-Shield Reborn",
+  "description": "Automatic shield blocking. Hold a shield in either hand and you will block any attack a shield can normally block (melee, projectiles, and more) as long as the threat comes from within a 180-degree frontal arc. The durability cost per block is server-configurable (0-10, default 1). Works on dedicated servers; install on clients too for the in-game config screen.",
+  "authors": ["Kishku7"],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/autoshield-reborn",
+    "sources": "https://github.com/Kishku7/autoshield-reborn",
+    "issues": "https://github.com/Kishku7/autoshield-reborn/issues"
+  },
+  "license": "ARR",
+  "icon": "assets/autoshieldreborn/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.kishku7.autoshieldreborn.AutoShieldReborn"],
+    "client": ["com.kishku7.autoshieldreborn.client.AutoShieldRebornClient"],
+    "modmenu": ["com.kishku7.autoshieldreborn.client.ASRModMenu"]
+  },
+  "mixins": [
+    "autoshield_reborn.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~26.1",
+    "fabric-api": ">=0.145.0"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
