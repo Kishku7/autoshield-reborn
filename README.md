@@ -1,5 +1,8 @@
 # Auto-Shield Reborn (ASR)
 
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/NVcgJJRsx)
+
+
 Automatic shield blocking for Minecraft. Hold a shield in **either hand** and you will automatically
 block any attack a shield can normally block — melee, projectiles, and more — with no need to raise
 it. Blocking only applies to threats from within a **180° frontal arc**: damage from behind still
