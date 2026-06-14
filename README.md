@@ -1,69 +1,35 @@
-# Auto-Shield Reborn (ASR)
+# Auto-Shield Reborn - Minecraft 26.2 (source branch)
 
-Automatic shield blocking for Minecraft. Hold a shield in **either hand** and you will automatically
-block any attack a shield can normally block — melee, projectiles, and more — with no need to raise
-it. Blocking only applies to threats from within a **180° frontal arc**: damage from behind still
-lands. The durability your shield loses per blocked hit is **server-configurable (0–10, default 1)**.
+Automatically blocks shield-blockable hits from your frontal arc while you hold a shield in either hand.
 
-Auto-Shield Reborn is a from-scratch rewrite and major expansion of
-[agorasim20/autoshield](https://github.com/agorasim20/autoshield) (CC0-1.0). The original auto-blocked
-**arrows only**; ASR blocks the full set of shield-blockable damage, adds the directional gate, the
-configurable durability cost, an in-game config screen, and server-authoritative operator sync —
-across Fabric and NeoForge on Minecraft 26.x. Credit and thanks to agorasim20 for the original idea.
+This branch holds the **Minecraft 26.2** source. For the current stable release, see the
+[26.1.2 branch](https://github.com/Kishku7/autoshield-reborn/tree/26.1.2).
 
-## Features
+MC 26.x is unobfuscated (mojmap-native), so there is no Architectury - two independent per-loader trees:
 
-- **Auto-block while holding a shield** in the main or off hand — no right-click needed.
-- **Blocks everything a raised shield would** (mirrors vanilla's own blockable rule): melee, arrows,
-  tridents, and other directional attacks. Fire, drowning, fall, magic, and starvation pass through,
-  exactly as if you had manually raised the shield. Piercing arrows still bypass shields.
-- **180° facing gate** — only blocks attacks from your forward hemisphere (horizontal head facing).
-- **Server-set durability cost (0–10, default 1).** 0 means the shield never wears from auto-blocks.
-- **In-game config screen** via ModMenu (Fabric) or the NeoForge mods-list "Config" button. Operators
-  (and single-player hosts) change the value and it syncs to the server live and persists; everyone
-  else sees it read-only.
-- **Dedicated-server safe.** All blocking logic is server-authoritative — fully functional with no
-  client installed (clients only add the config screen).
+- `fabric/`   - fabric-loom.    Build: `cd fabric && ./gradlew build`
+- `neoforge/` - ModDevGradle.   Build: `cd neoforge && ./gradlew build` (see the NeoForge note below)
 
-## Downloads
+## Fabric
+Targets the MC 26.2 pre/rc line with Fabric API. Builds with the published Fabric 26.2 toolchain - no extra setup.
 
-| Minecraft | File | Loaders |
-|-----------|------|---------|
-| 26.1.2 (Fabric also 26.1 / 26.1.1) | `autoshield-reborn-1.0.0+26.1.2.jar` — **one universal jar** | Fabric **and** NeoForge |
-| 26.2 (incl. 26.2-rc-1) | `autoshield-reborn-1.0.0+26.2.jar` | Fabric |
+## NeoForge - requires a locally built NeoForge 26.2 (alpha)
+NeoForge has not published a 26.2 build, so `neoforge/` depends on a NeoForge 26.2 that you build yourself
+and publish to your local Maven. One time:
 
-The 26.1.2 download is a single merged jar that runs on **both** Fabric and NeoForge — just drop it in
-`mods/`. NeoForge for 26.2 will be added once NeoForge ships a 26.2 build. On Fabric 26.2, ModMenu had
-not yet published a 26.2-compatible release at time of writing — the JSON config and all blocking still
-work without it.
+1. `git clone --branch port/26.2 https://github.com/neoforged/NeoForge`
+2. Install **JDK 25** (the JDK the `port/26.2` branch requires).
+3. Build it and publish to your local Maven:
 
-Fabric builds need [Fabric API](https://modrinth.com/mod/fabric-api). ModMenu is optional (only for the
-config screen).
+       ./gradlew setup
+       ./gradlew :neoforge:publishToMavenLocal --no-configuration-cache
 
-## Configuration
+   This publishes `net.neoforged:neoforge:26.2.0-alpha.0+<suffix>` into `~/.m2` (the suffix is timestamped).
+4. Set that exact version in `neoforge/gradle.properties` (`neo_version`), then `cd neoforge && ./gradlew build`.
+   (`neoforge/build.gradle` already includes `mavenLocal()`.)
 
-The setting lives in `config/autoshield-reborn.json` on the server (or in single-player):
+To **run** the NeoForge build, install that same locally built NeoForge (its `*-installer.jar`) into your
+launcher - there is no public NeoForge 26.2 to install yet.
 
-```json
-{
-  "durabilityCost": 1
-}
-```
-
-`durabilityCost` is clamped to 0–10 — the durability a shield loses each time it auto-blocks a hit.
-Change it in-game from the config screen (operators only on a server) or by editing this file.
-
-## Source layout (branches)
-
-- `main` — this landing page.
-- `26.1.2` — source for the 26.1.2 universal release: `fabric/` (fabric-loom) and `neoforge/`
-  (ModDevGradle), both JDK 25, mojmap-native (no Architectury). The release jar is the two built per
-  the build step below and merged with [Forgix](https://github.com/PacifistMC/Forgix).
-- `26.2` — `fabric/` source targeting 26.2-rc-1 (JDK 25, fabric-loom).
-
-Each subproject builds with `./gradlew build`; jars land in `build/libs/`.
-
-## License
-
-All Rights Reserved. See `LICENSE`. (The CC0 origin permits relicensing derivatives; the original
-agorasim20/autoshield remains available under CC0-1.0.)
+## Downloads (Modrinth, beta)
+https://modrinth.com/mod/autoshield-reborn
