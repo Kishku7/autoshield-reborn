@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "ARR"
+issueTrackerURL = "https://github.com/Kishku7/autoshield-reborn/issues"
+
+[[mods]]
+modId = "autoshield_reborn"
+version = "${mod_version}"
+displayName = "Auto-Shield Reborn"
+authors = "Kishku7"
+description = '''
+Automatic shield blocking. Hold a shield in either hand and you will block any attack a shield can normally block (melee, projectiles, and more) from within a 180-degree frontal arc. The durability cost per block is server-configurable (0-10, default 1). Works on dedicated servers; the in-game Config button adjusts the setting (operators sync it to the server).
+'''
+logoFile = "icon.png"
+
+[[mixins]]
+config = "autoshield_reborn.mixins.json"
+
+[[dependencies.autoshield_reborn]]
+modId = "neoforge"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.autoshield_reborn]]
+modId = "minecraft"
+type = "required"
+versionRange = "[26.1,)"
+ordering = "NONE"
+side = "BOTH"
