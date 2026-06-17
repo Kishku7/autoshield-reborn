@@ -1,30 +1,36 @@
-# Auto-Shield Reborn - Minecraft 26.2 line (source branch, pre-release)
+# Auto-Shield Reborn - branch `26.2`
 
-Auto-Shield Reborn (ASR) is a **client + server** mod that automatically blocks any
-shield-blockable hit from your frontal 180-degree arc while you hold a shield in either
-hand - no need to raise it. Server-authoritative, so it works on dedicated servers with
-no client installed.
+Source for the Minecraft **26.2 (pre-release)** line. Standalone `Fabric/` and `NeoForge/` build trees (one
+subfolder per Minecraft version) - no Architectury, no `common/` subproject (MC 26.x is mojmap-native).
+Client + server mod (server-authoritative; dedicated-server safe).
 
-This branch holds the **Minecraft 26.2** source (pre-release line). Builds are
-**standalone** - separate self-contained Fabric and NeoForge Gradle trees, **no
-Architectury, no common/ subproject**. MC 26.x is unobfuscated (mojmap-native).
+> **Pre-release line.** Modrinth **beta** only; no GitHub release until 26.2 is stable. The NeoForge build targets a local NeoForge 26.2 alpha (no public NeoForge 26.2 yet).
 
-## Builds in this branch
+## Platforms
 
-| Loader   | Path             | MC               |
-|----------|------------------|------------------|
-| Fabric   | `Fabric/26.2/`   | 26.2 (rc)        |
-| NeoForge | `NeoForge/26.2/` | 26.2 (rc/alpha)  |
+- [`Fabric/`](Fabric) - 1 build(s); see its README.
+- [`NeoForge/`](NeoForge) - 1 build(s); see its README.
 
-## Other branches
+## Not supported on this line
 
-- [`26.1`](https://github.com/Kishku7/autoshield-reborn/tree/26.1) - Minecraft 26.1 line (stable)
-- [`1.20.x`](https://github.com/Kishku7/autoshield-reborn/tree/1.20.x) - planned
-- [`1.21.x`](https://github.com/Kishku7/autoshield-reborn/tree/1.21.x) - planned
-- [`main`](https://github.com/Kishku7/autoshield-reborn) - landing page
+- **Forge** is not built for the 26.x line - there is no Forge toolchain for unobfuscated Minecraft 26.x.
+- **Quilt** is not offered - Auto-Shield Reborn currently ships only for the 26.x line, where Quilt is not viable: Quilt retired Quilted Fabric API at 26.1 and ASR requires Fabric API, so the Fabric jar will not load on Quilt for 26.x.
+
+## Build
+
+```
+cd <Loader>/<version>
+./gradlew build      # Windows: .\gradlew.bat build
+```
+
+Output: `build/libs/autoshield-reborn-*.jar`. Requires JDK 25 (Minecraft 26.x toolchain).
 
 ## Links
 
-- Discord: https://discord.gg/2ZxzbCzAHe
+- Other branches: [`1.20.x`](https://github.com/Kishku7/autoshield-reborn/tree/1.20.x), [`1.21.x`](https://github.com/Kishku7/autoshield-reborn/tree/1.21.x), [`26.1`](https://github.com/Kishku7/autoshield-reborn/tree/26.1)
+- Overview: [`main`](https://github.com/Kishku7/autoshield-reborn/tree/main)
 - Modrinth: https://modrinth.com/mod/autoshield-reborn
 - Releases: https://github.com/Kishku7/autoshield-reborn/releases
+- Discord: https://discord.gg/2ZxzbCzAHe
+
+By Kishku7. All Rights Reserved. A from-scratch rewrite of [agorasim20/autoshield](https://github.com/agorasim20/autoshield) (CC0-1.0).

@@ -1,9 +1,23 @@
-# Auto-Shield Reborn - Fabric 26.2
+# Auto-Shield Reborn - Fabric 26.2 (Minecraft 26.2 (pre-release))
 
-- **Loader:** Fabric (also Quilt-compatible)
-- **Minecraft:** 26.2 (pre-release / rc)
-- **Type:** client + server mod (server-authoritative; dedicated-server safe)
-- **Build:** `./gradlew build` (JDK 25, fabric-loom, mojmap-native - no Architectury)
-- **Output jar:** `build/libs/autoshield-reborn-1.0.1+26.2.jar`
+Builds the **Fabric** jar for **Minecraft 26.2 (pre-release)**. Client + server mod (server-authoritative; dedicated-server safe).
 
-Needs [Fabric API](https://modrinth.com/mod/fabric-api). ModMenu optional (config screen).
+- Loader: Fabric
+- Minecraft: 26.2 (pre-release)
+- Java: 25
+- Toolchain: fabric-loom, built vs 26.2-rc-2 (mojmap-native, no Architectury)
+
+## Build
+
+```
+./gradlew build      # Windows: .\gradlew.bat build
+```
+
+Output: `build/libs/autoshield-reborn-*.jar`
+
+## Dependencies
+
+- **Fabric API** - required.
+- **ModMenu** - optional (config screen).
+
+Part of the [`26.2` branch](https://github.com/Kishku7/autoshield-reborn/tree/26.2). [Modrinth](https://modrinth.com/mod/autoshield-reborn) - [Releases](https://github.com/Kishku7/autoshield-reborn/releases).
