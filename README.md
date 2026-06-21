@@ -29,6 +29,5 @@ Output: `build/libs/autoshield-reborn-*.jar`. Requires JDK 25 (Minecraft 26.x to
 - Overview: [`main`](https://github.com/Kishku7/autoshield-reborn/tree/main)
 - Modrinth: https://modrinth.com/mod/autoshield-reborn
 - Releases: https://github.com/Kishku7/autoshield-reborn/releases
-- Discord: https://discord.gg/2ZxzbCzAHe
 
 By Kishku7. All Rights Reserved. A from-scratch rewrite of [agorasim20/autoshield](https://github.com/agorasim20/autoshield) (CC0-1.0).
