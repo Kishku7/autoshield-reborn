@@ -2,7 +2,6 @@
 
 **Auto-Shield Reborn** is a client + server mod that automatically blocks any shield-blockable hit coming from your frontal 180-degree arc whenever you hold a shield in **either hand** - no need to raise it. All blocking logic is server-authoritative, so it works on dedicated servers even with no client installed (the client only adds an in-game config screen). The per-hit shield durability cost is server-configurable (0-10, default 1).
 
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/2ZxzbCzAHe)
 
 ## Branches
 
@@ -37,6 +36,5 @@ Hold a shield in your main or off hand. Any hit that a manually-raised shield wo
 
 - Releases: https://github.com/Kishku7/autoshield-reborn/releases
 - Modrinth: https://modrinth.com/mod/autoshield-reborn
-- Discord: https://discord.gg/2ZxzbCzAHe
 
 By Kishku7. All Rights Reserved. A from-scratch rewrite of [agorasim20/autoshield](https://github.com/agorasim20/autoshield) (CC0-1.0).
