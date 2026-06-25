@@ -1,35 +1,13 @@
-# Auto-Shield Reborn - branch `26.2`
+# Auto-Shield Reborn -- MC 26.x (unified line)
 
-Source for the Minecraft **26.2 (pre-release)** line. Standalone `Fabric/` and `NeoForge/` build trees (one
-subfolder per Minecraft version) - no Architectury, no `common/` subproject (MC 26.x is mojmap-native).
-Client + server mod (server-authoritative; dedicated-server safe).
+Auto-blocks shield-blockable damage while holding a shield (either hand), with a facing gate and
+server-configurable durability cost. Client+server; one source tree builds every 26.x version on both loaders.
 
-> **Pre-release line.** Modrinth **beta** only; no GitHub release until 26.2 is stable. The NeoForge build targets a local NeoForge 26.2 alpha (no public NeoForge 26.2 yet).
+Layout (shared standard):
+- shared_minecraft/ -- MC-coupled core + mixin + payloads + the shared config screen
+  (ASRConfig, AutoShieldMixin, Set/SyncDurabilityPayload, ASRConfigScreen, plus a ClientNet sender
+  facade and a reflective ScreenCompat setScreen bridge so one screen serves 26.1->26.3). srcDir'd per loader.
+- Fabric/ -- entrypoint + ModMenu hook + payload registration (ASRNetworking) + client init + fabric.mod.json.
+- NeoForge/ -- entrypoint + @Mod wiring + config-screen factory + client init + neoforge.mods.toml.
 
-## Platforms
-
-- [`Fabric/`](Fabric) - 1 build(s); see its README.
-- [`NeoForge/`](NeoForge) - 1 build(s); see its README.
-
-## Not supported on this line
-
-- **Forge** is not built for the 26.x line - there is no Forge toolchain for unobfuscated Minecraft 26.x.
-- **Quilt** is not offered - Auto-Shield Reborn currently ships only for the 26.x line, where Quilt is not viable: Quilt retired Quilted Fabric API at 26.1 and ASR requires Fabric API, so the Fabric jar will not load on Quilt for 26.x.
-
-## Build
-
-```
-cd <Loader>/<version>
-./gradlew build      # Windows: .\gradlew.bat build
-```
-
-Output: `build/libs/autoshield-reborn-*.jar`. Requires JDK 25 (Minecraft 26.x toolchain).
-
-## Links
-
-- Other branches: [`1.20.x`](https://github.com/Kishku7/autoshield-reborn/tree/1.20.x), [`1.21.x`](https://github.com/Kishku7/autoshield-reborn/tree/1.21.x), [`26.1`](https://github.com/Kishku7/autoshield-reborn/tree/26.1)
-- Overview: [`main`](https://github.com/Kishku7/autoshield-reborn/tree/main)
-- Modrinth: https://modrinth.com/mod/autoshield-reborn
-- Releases: https://github.com/Kishku7/autoshield-reborn/releases
-
-By Kishku7. All Rights Reserved. A from-scratch rewrite of [agorasim20/autoshield](https://github.com/agorasim20/autoshield) (CC0-1.0).
+Build: `pwsh build-all-fabric.ps1` (26.1.2/26.2/26.3-snapshot-1) / `pwsh build-all-neoforge.ps1` (26.1.2/26.2).
