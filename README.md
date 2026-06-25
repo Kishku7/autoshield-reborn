@@ -9,8 +9,7 @@ Source is organized by Minecraft line. Each MC-line branch carries standalone `F
 `NeoForge/<version>` build trees - **no Architectury, no `common/` subproject** (MC 26.x is mojmap-native).
 `main` (this branch) is the overview.
 
-- [26.1](https://github.com/Kishku7/autoshield-reborn/tree/26.1) - Minecraft 26.1 - 26.1.2
-- [26.2](https://github.com/Kishku7/autoshield-reborn/tree/26.2) - Minecraft 26.2 (pre-release)
+- [26](https://github.com/Kishku7/autoshield-reborn/tree/26) - Minecraft 26.1 -> 26.3-snapshot-1 (unified line; Fabric + NeoForge)
 - [1.20.x](https://github.com/Kishku7/autoshield-reborn/tree/1.20.x) - Minecraft 1.20 line (builds pending - scaffold)
 - [1.21.x](https://github.com/Kishku7/autoshield-reborn/tree/1.21.x) - Minecraft 1.21 line (builds pending - scaffold)
 
