@@ -19,13 +19,13 @@ config = "autoshield_reborn.mixins.json"
 [[dependencies.autoshield_reborn]]
 modId = "neoforge"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "${neoforgeRange}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.autoshield_reborn]]
 modId = "minecraft"
 type = "required"
-versionRange = "[26.1,)"
+versionRange = "${mcRange}"
 ordering = "NONE"
 side = "BOTH"
