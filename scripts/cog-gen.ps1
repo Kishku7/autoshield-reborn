@@ -30,6 +30,11 @@ try {
     $hasPayload  = (& python -c "import compat,sys;sys.stdout.write('1' if compat.has_payload_api('$McVer') else '0')")
     $compatLevel = (& python -c "import compat,sys;sys.stdout.write(compat.compat_level('$McVer'))")
     $forgeRefmap = (& python -c "import compat,sys;sys.stdout.write('1' if compat.forge_needs_refmap('$McVer') else '0')")
+    if ($Loader -eq 'Forge') {
+        $forgeOldMixin = (& python -c "import compat,sys;sys.stdout.write('1' if compat._parse('$McVer') < (1,21,0) else '0')")
+        if ($forgeOldMixin -eq '1') { $compatLevel = 'JAVA_17' }   # classic Forge (<=1.20.x, Forge 50) bundles an old Mixin that rejects JAVA_21
+        $dataFormat = (& python -c "import compat,sys;sys.stdout.write(str(compat.datapack_format('$McVer')))")
+    }
 } finally { Pop-Location }
 
 Write-Host "[cog-gen] cell=$Cell mcver=$McVer loader=$Loader payload=$hasPayload compat=$compatLevel"
@@ -115,4 +120,20 @@ $refmapLine  "mixins": [
 "@
 $json = $json -replace "`r`n", "`n"
 [System.IO.File]::WriteAllText((Join-Path $genRes 'autoshield_reborn.mixins.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
+# Forge 56+/58 requires the mod to ship a pack.mcmeta (else its datapack never loads ->
+# LootModifierManager world-tick crash on 1.21.8). Emit one for Forge cells.
+if ($Loader -eq 'Forge') {
+    $mcmeta = @'
+{
+  "pack": {
+    "description": "Auto-Shield Reborn",
+    "pack_format": __FMT__,
+    "supported_formats": { "min_inclusive": 1, "max_inclusive": 9999 }
+  }
+}
+'@ -replace '__FMT__', $dataFormat
+    $mcmeta = $mcmeta -replace "`r`n", "`n"
+    [System.IO.File]::WriteAllText((Join-Path $genRes 'pack.mcmeta'), $mcmeta, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "[cog-gen] wrote pack.mcmeta (pack_format=$dataFormat)"
+}
 Write-Host "[cog-gen] done: $Cell (compat=$compatLevel)"

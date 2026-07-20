@@ -72,7 +72,7 @@ def is_component(mcver):
 def uses_hurtserver(mcver):
     """Legacy hurtServer(ServerLevel,...) entry: 1.21.2 <= v < 1.21.9 (in ASR's matrix: 1.21.5, 1.21.8)."""
     v = _parse(mcver)
-    return not is_component(mcver) and (1, 21, 2) <= v < (1, 21, 9)
+    return not is_component(mcver) and (1, 21, 2) <= v < (1, 21, 11)  # extended to 1.21.9/1.21.10: hurtServer(ServerLevel,DamageSource,float) is byte-identical through 1.21.10; component path is 1.21.11+. (Level.isClientSide went private at 1.21.9 but the hurtServer path never touches that field.)
 
 
 def uses_hurt(mcver):
@@ -84,12 +84,12 @@ def manual_view(mcver):
     """Compute the horizontal view from yaw manually (identical to calculateViewVector(0,yaw)):
     on 1.20.1 calculateViewVector is protected; on 26.x it triggers an -Xlint [static] warning. Both
     use the manual form. 1.21.x keeps self.calculateViewVector (byte-transparent with the shipped jars)."""
-    return _parse(mcver) == (1, 20, 1) or is_26(mcver)
+    return (1, 20, 0) <= _parse(mcver) < (1, 20, 5) or is_26(mcver)
 
 
 def durability_kind(mcver):
     """consumer (1.20.1) | hand (component) | slot (else)."""
-    if _parse(mcver) == (1, 20, 1):
+    if (1, 20, 0) <= _parse(mcver) < (1, 20, 5):
         return "consumer"
     if is_component(mcver):
         return "hand"
@@ -155,6 +155,24 @@ def forge_needs_refmap(mcver):
 # ---------------------------------------------------------------------------
 # Mixin -- the whole AutoShieldMixin.java (the heart of the mod)
 # ---------------------------------------------------------------------------
+
+def datapack_format(mcver):
+    """pack.mcmeta pack_format for this MC version (Forge 56+/58 requires the mod to ship a
+    pack.mcmeta or its datapack never finishes loading -> LootModifierManager world-tick crash,
+    seen on Forge 1.21.8). Values are representative; the emitted mcmeta also carries a wide
+    supported_formats range so the exact int is non-critical."""
+    v = _parse(mcver)
+    if v[0] >= 26:
+        return 88
+    if v < (1, 20, 5):
+        return 15
+    if v < (1, 21, 0):
+        return 41
+    if v < (1, 21, 2):
+        return 48
+    if v < (1, 21, 6):
+        return 71
+    return 81
 
 _MIXIN_HEAD = "package com.kishku7.autoshieldreborn.mixin;\n\nimport com.kishku7.autoshieldreborn.ASRConfig;\n\n"
 
@@ -528,7 +546,7 @@ _SLIDER_INNER = (
 def config_screen(mcver, loader=None):
     """ASRConfigScreen.java. Widgets-only shape (>=1.20.2); the 1.20.1 render-override shape is a special.
     Send goes through the ClientNet facade (payload era); 1.20.1 uses the classic channel directly."""
-    if _parse(mcver) == (1, 20, 1):
+    if (1, 20, 0) <= _parse(mcver) < (1, 20, 5):
         return _config_screen_1201_forge() if loader == "Forge" else _config_screen_1201()
     imports = [
         "import com.kishku7.autoshieldreborn.ASRConfig;",
