@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "ARR"
+issueTrackerURL = "https://github.com/Kishku7/mod_support/issues"
+
+[[mods]]
+modId = "autoshield_reborn"
+version = "${version}"
+displayName = "Auto-Shield Reborn"
+authors = "Kishku7"
+logoFile = "icon.png"
+description = '''
+Automatic shield blocking. Hold a shield in either hand and you block any shield-blockable hit from a 180-degree frontal arc. Durability cost per block is server-configurable (0-10, default 1). Works on dedicated servers; the in-game Config button adjusts the setting (operators sync it to the server).
+'''
+
+[[dependencies.autoshield_reborn]]
+modId = "forge"
+mandatory = true
+versionRange = "[0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.autoshield_reborn]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${mcRange}"
+ordering = "NONE"
+side = "BOTH"

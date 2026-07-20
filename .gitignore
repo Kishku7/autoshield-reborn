@@ -4,3 +4,5 @@ out/
 run/
 *.log
 dist/
+gen/
+docs/

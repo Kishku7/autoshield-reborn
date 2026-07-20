@@ -1,0 +1,44 @@
+plugins {
+    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+version = project.mod_version
+group = 'com.kishku7.autoshieldreborn'
+base { archivesName = 'autoshield-reborn' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_version.toInteger())
+
+sourceSets.main.java.srcDir 'gen/src/main/java'
+sourceSets.main.resources.srcDir 'gen/src/main/resources'
+
+minecraft {
+    mappings channel: 'official', version: project.minecraft_version
+    copyIdeResources = true
+}
+
+mixin {
+    add sourceSets.main, 'autoshield_reborn.refmap.json'
+    config 'autoshield_reborn.mixins.json'
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${project.forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:all', '-Xlint:-processing']
+}
+
+processResources {
+    def ep = ["version": project.version, "mcRange": project.minecraft_range]
+    inputs.properties(ep)
+    filesMatching("META-INF/mods.toml") { expand(ep) }
+}
+
+java { withSourcesJar() }
+
+jar { manifest { attributes 'MixinConfigs': 'autoshield_reborn.mixins.json' } }
