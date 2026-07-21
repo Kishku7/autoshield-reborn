@@ -123,7 +123,21 @@ $json = $json -replace "`r`n", "`n"
 # Forge 56+/58 requires the mod to ship a pack.mcmeta (else its datapack never loads ->
 # LootModifierManager world-tick crash on 1.21.8). Emit one for Forge cells.
 if ($Loader -eq 'Forge') {
-    $mcmeta = @'
+    # >=1.21.9 rewrote pack.mcmeta: old "supported_formats" is rejected (declares support newer
+    # than 81, missing min_format/max_format). datapack_format is <=81, so a bare pack_format loads
+    # clean there; keep supported_formats only on the <1.21.9 range where it is accepted.
+    $packModern = (& python -c "import compat,sys;sys.stdout.write('1' if compat._parse('$McVer') >= (1,21,9) else '0')")
+    if ($packModern -eq '1') {
+        $mcmeta = @'
+{
+  "pack": {
+    "description": "Auto-Shield Reborn",
+    "pack_format": __FMT__
+  }
+}
+'@ -replace '__FMT__', $dataFormat
+    } else {
+        $mcmeta = @'
 {
   "pack": {
     "description": "Auto-Shield Reborn",
@@ -132,6 +146,7 @@ if ($Loader -eq 'Forge') {
   }
 }
 '@ -replace '__FMT__', $dataFormat
+    }
     $mcmeta = $mcmeta -replace "`r`n", "`n"
     [System.IO.File]::WriteAllText((Join-Path $genRes 'pack.mcmeta'), $mcmeta, (New-Object System.Text.UTF8Encoding($false)))
     Write-Host "[cog-gen] wrote pack.mcmeta (pack_format=$dataFormat)"

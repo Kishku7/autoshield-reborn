@@ -6,3 +6,6 @@ run/
 dist/
 gen/
 docs/
+
+scripts/_publish_*.py
+scripts/_release_*.py
