@@ -13,7 +13,7 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot'
 $m26 = [ordered]@{
   '26.1' = @{ mc='26.1.2'; api='0.145.3+26.1.1'; loader='0.18.6'; lo='26.1-'; hi='26.2';         modmenu='17.0.0-beta.1' }
   '26.2' = @{ mc='26.2';   api='0.152.1+26.2';   loader='0.19.3'; lo='26.2-'; hi='26.3';         modmenu='18.0.0-beta.1' }
-  '26.3' = @{ mc='26.3-snapshot-4'; api='0.155.1+26.3'; loader='0.19.3'; lo='26.3-alpha.4'; hi='26.3-alpha.5'; modmenu='18.0.0-beta.1' }
+  '26.3' = @{ mc='26.3-snapshot-5'; api='0.155.3+26.3'; loader='0.19.3'; lo='26.3-alpha.5'; hi='26.3-alpha.6'; modmenu='18.0.0-beta.1' }
 }
 
 function Copy-Jar($cell, $label) {
