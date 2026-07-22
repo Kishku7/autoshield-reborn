@@ -9,7 +9,14 @@ suffixed with the Minecraft version per jar.
 ### Added
 - **Forge (FG6) support**: 1.20.1, 1.20.6, 1.21.1, 1.21.5, 1.21.8.
 - **NeoForge below 26**: 1.20.6, 1.21.1, 1.21.5, 1.21.8, 1.21.11.
-- **Fabric 26.3-snapshot-4** cell.
+- **Fabric 26.3-snapshot-5** cell (fabric-api 0.155.3+26.3, dep `26.3-alpha.5`). Loads + renders
+  in-world on the snapshot (headless client-harness eyeballed).
+
+### Changed
+- The 26.x config-screen entrypoint now sources **ModMenu from Modrinth's maven**
+  (`maven.modrinth:modmenu`) instead of `maven.terraformersmc.com`, which stopped serving the
+  18.x ModMenu artifacts. Also fixed a `-M26` build-script arg bug (a `$M26`/`$m26` PowerShell
+  case-insensitive name collision that clobbered the target parameter).
 
 ### Changed
 - Unified every loader and Minecraft version onto a single Cog source of truth (`_codegen`), matching

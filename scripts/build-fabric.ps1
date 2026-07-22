@@ -10,10 +10,10 @@ $cogGen = Join-Path $PSScriptRoot 'cog-gen.ps1'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot'
 
-$m26 = [ordered]@{
+$matrix26 = [ordered]@{
   '26.1' = @{ mc='26.1.2'; api='0.145.3+26.1.1'; loader='0.18.6'; lo='26.1-'; hi='26.2';         modmenu='17.0.0-beta.1' }
   '26.2' = @{ mc='26.2';   api='0.152.1+26.2';   loader='0.19.3'; lo='26.2-'; hi='26.3';         modmenu='18.0.0-beta.1' }
-  '26.3' = @{ mc='26.3-snapshot-5'; api='0.155.3+26.3'; loader='0.19.3'; lo='26.3-alpha.5'; hi='26.3-alpha.6'; modmenu='18.0.0-beta.1' }
+  '26.3' = @{ mc='26.3-snapshot-5'; api='0.155.3+26.3'; loader='0.19.3'; lo='26.3-alpha.5'; hi='26.3-alpha.6'; modmenu='18.0.0' }
 }
 
 function Copy-Jar($cell, $label) {
@@ -38,7 +38,7 @@ function Build-Pre($v) {
 }
 
 function Build-26($v) {
-  $cell = Join-Path $root '26'; $m = $m26[$v]
+  $cell = Join-Path $root '26'; $m = $matrix26[$v]
   Write-Host "=== ASR Fabric/26 -> $v (mc=$($m.mc)) ==="
   & $cogGen -Cell 'Fabric/26' -McVer $m.mc -Loader Fabric
   if ($LASTEXITCODE -ne 0) { throw "cog-gen FAILED 26/$v" }
@@ -52,5 +52,5 @@ function Build-26($v) {
 $pre = @(Get-ChildItem $root -Directory -EA SilentlyContinue | Where-Object { $_.Name -ne '26' } | Select-Object -ExpandProperty Name | Sort-Object)
 if ($Only)  { foreach ($v in $Only) { Build-Pre $v } }
 elseif ($M26) { foreach ($v in $M26) { Build-26 $v } }
-else { foreach ($v in $pre) { Build-Pre $v }; foreach ($v in $m26.Keys) { Build-26 $v } }
+else { foreach ($v in $pre) { Build-Pre $v }; foreach ($v in $matrix26.Keys) { Build-26 $v } }
 Write-Host 'Fabric builds complete.'
