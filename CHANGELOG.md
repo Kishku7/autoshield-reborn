@@ -1,8 +1,17 @@
 # Changelog
 
 All notable changes to Auto-Shield Reborn are documented here. Format based on
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project uses SemVer-ish versions
-suffixed with the Minecraft version per jar.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
+Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
+
+## [1.1.1] - 2026-07-27
+
+### Added
+- scripts/build-neoforge.ps1 - Auto-Shield Reborn previously had no canonical NeoForge build script, so its NeoForge/26 cell had no reproducible build path and a bare gradlew build silently compiled a stale gitignored gen/ tree. The new script drives cog-gen then Gradle with per-26.X -P overrides and copies to dist/, matching the other mods.
+
+### Changed
+- NeoForge 26 cells rebuilt against the now-PUBLISHED NeoForge builds: 26.1 -> 26.1.2.87, 26.2 -> 26.2.0.35-beta (previously 26.2.0.25-beta, and the 26.1 NeoForge jar had no reproducible build at all). mavenLocal() removed from the cell.
+- No source or behaviour change. Server-boot smoketested on NeoForge 26.1.2 and 26.2.
 
 ## [1.1.0] - 2026-07-19
 
