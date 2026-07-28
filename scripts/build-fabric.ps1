@@ -48,7 +48,7 @@ function Build-26($v) {
   & $cogGen -Cell 'Fabric/26' -McVer $m.mc -Loader Fabric
   if ($LASTEXITCODE -ne 0) { throw "cog-gen FAILED 26/$v" }
   Push-Location $cell
-  & .\gradlew.bat clean build "-Pmod_version=1.1.2+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
+  & .\gradlew.bat clean build "-Pmod_version=1.1.3+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
   $rc = $LASTEXITCODE; Pop-Location
   $env:JAVA_HOME = $prevJavaHome
   if ($rc -ne 0) { throw "build FAILED 26/$v" }

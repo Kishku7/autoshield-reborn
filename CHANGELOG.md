@@ -4,6 +4,33 @@ All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
 Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
 
+## [1.1.3] - 2026-07-28
+
+### Fixed
+- **26.x jars now ship a `pack.mcmeta`.** No ASR 26.x jar carried one -- not Fabric
+  26.1/26.2/26.3, not the NeoForge 26 jars. `cog-gen.ps1` only emitted the file for Forge
+  cells, and `compat.datapack_format()` returned a flat 88 for all of 26.x, which is not the
+  26 shape anyway. Now every 26.x cell, on every loader, emits the exact-single RANGE form
+  (`pack_format = min_format = max_format`) required by the 26 codec -- a plain int > 81 FATALs
+  the NeoForge dedicated-server datapack load, and the pre-26 `supported_formats` shape is
+  rejected outright.
+- New `compat.resource_format(mcver)` supplies the RESOURCE major per 26.X line
+  (26.1 -> 84, 26.2 -> 88, 26.3 -> 94, read from each line's `SharedConstants`); it returns
+  `None` below 26 so the pre-26 Forge-only `datapack_format` path is untouched.
+- Rebuilt and verified in the jars: Fabric 26.2 -> 88, Fabric 26.3 -> 94,
+  NeoForge 26.1.2 -> 84, NeoForge 26.2 -> 88, all in range form.
+
+### Changed
+- Mod-wide version 1.1.2 -> **1.1.3** (every rebuilt-and-shipped binary gets a bump).
+
+### Known issue (PRE-EXISTING, surfaced by this rebuild -- NOT caused by it)
+- **The Fabric 26.1 cell does not compile.** It fails in `ASRModMenu.java` with
+  `cannot access class_437` / `invalid constructor reference` -- the ModMenu artifact pinned for
+  the 26.1 row (`17.0.0-beta.1`) resolves to an intermediary-named build that will not compile
+  against the mojmap 26.x cell. Unrelated to pack.mcmeta (26.2 and 26.3 build clean with the
+  identical change). The 26.1 Fabric jar therefore still ships WITHOUT pack.mcmeta until the
+  ModMenu pin is sorted; 26.2, 26.3 and both NeoForge cells are fixed.
+
 ## [1.1.2] - 2026-07-28
 
 ### Changed

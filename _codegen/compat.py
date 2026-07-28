@@ -174,6 +174,23 @@ def datapack_format(mcver):
         return 71
     return 81
 
+def resource_format(mcver):
+    """RESOURCE pack_format for a 26.x version, or None below 26.
+
+    26.x is a different regime from datapack_format() above: a 26.x jar must ship the
+    EXACT-SINGLE RANGE form (pack_format = min_format = max_format = <resource major>).
+    A plain int > 81 FATALs the NeoForge dedicated-server datapack load, and the pre-26
+    "supported_formats" shape is rejected outright. Values are the resource major read out
+    of each line's SharedConstants (authority: Memory/knowledge/pack-formats.md):
+    26.1 -> 84, 26.2 -> 88, 26.3 -> 94 (snapshot-6; earlier 26.3 snapshots were 89-93).
+    """
+    v = _parse(mcver)
+    if v[0] < 26:
+        return None
+    line = v[1] if len(v) > 1 else 0
+    return {1: 84, 2: 88, 3: 94}.get(line, 94)
+
+
 _MIXIN_HEAD = "package com.kishku7.autoshieldreborn.mixin;\n\nimport com.kishku7.autoshieldreborn.ASRConfig;\n\n"
 
 

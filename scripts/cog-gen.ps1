@@ -120,9 +120,31 @@ $refmapLine  "mixins": [
 "@
 $json = $json -replace "`r`n", "`n"
 [System.IO.File]::WriteAllText((Join-Path $genRes 'autoshield_reborn.mixins.json'), $json, (New-Object System.Text.UTF8Encoding($false)))
+# --- 26.x: EVERY loader ships pack.mcmeta in the exact-single RANGE form ---------------
+# The 26 codec demands min_format/max_format: a plain int > 81 FATALs the NeoForge dedicated
+# -server datapack load, and the pre-26 "supported_formats" shape is rejected outright. ASR
+# previously shipped NO pack.mcmeta at all on 26.x (Fabric 26.1/26.2/26.3 + NeoForge 26) --
+# survivable, because both loaders synthesise defaults when the file is absent, but a real
+# deviation from the 26.x rule. resource_format() is the RESOURCE major per 26.X line.
+$resFormat = (& python -c "import compat,sys;v=compat.resource_format('$McVer');sys.stdout.write('' if v is None else str(v))")
+if ($resFormat) {
+    $mcmeta = @'
+{
+  "pack": {
+    "description": "Auto-Shield Reborn",
+    "pack_format": __FMT__,
+    "min_format": __FMT__,
+    "max_format": __FMT__
+  }
+}
+'@ -replace '__FMT__', $resFormat
+    $mcmeta = $mcmeta -replace "`r`n", "`n"
+    [System.IO.File]::WriteAllText((Join-Path $genRes 'pack.mcmeta'), $mcmeta, (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "[cog-gen] wrote 26.x pack.mcmeta (range form, pack_format=$resFormat)"
+}
 # Forge 56+/58 requires the mod to ship a pack.mcmeta (else its datapack never loads ->
-# LootModifierManager world-tick crash on 1.21.8). Emit one for Forge cells.
-if ($Loader -eq 'Forge') {
+# LootModifierManager world-tick crash on 1.21.8). Emit one for pre-26 Forge cells.
+elseif ($Loader -eq 'Forge') {
     # >=1.21.9 rewrote pack.mcmeta: old "supported_formats" is rejected (declares support newer
     # than 81, missing min_format/max_format). datapack_format is <=81, so a bare pack_format loads
     # clean there; keep supported_formats only on the <1.21.9 range where it is accepted.
