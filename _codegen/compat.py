@@ -483,19 +483,136 @@ def net_source(mcver, loader=None):
 
 
 # ---------------------------------------------------------------------------
+# /asr commands (D-series: keep the mod fully usable with ModMenu absent)
+# ---------------------------------------------------------------------------
+
+def command_gate(mcver):
+    """The `.requires(...)` argument for an op-gated /asr subcommand, plus its imports.
+
+    26.x DELETED `CommandSourceStack.hasPermission(int)`; the vanilla shape is now
+    `Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER))`
+    (read out of 26.3-snapshot-6 GameModeCommand). Pre-26 keeps the int form, and 1.20.1 has
+    no `Commands.hasPermission` helper at all, so the lambda on the source is the one shape
+    that compiles across every pre-26 cell.
+    Returns (expr, [imports]).
+    """
+    if is_26(mcver):
+        return ("Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER))",
+                ["import net.minecraft.server.permissions.PermissionCheck;",
+                 "import net.minecraft.server.permissions.Permissions;"])
+    return ("src -> src.hasPermission(2)", [])
+
+
+def commands_source(mcver, loader=None):
+    """The whole ASRCommands.java -- the loader-agnostic /asr command tree.
+
+    WHY THIS EXISTS: the durability setting used to be reachable only through the ModMenu
+    config screen, so on a client without ModMenu (or when ModMenu breaks, which it has --
+    its maven prunes old artifacts and its majors are per-MC-line) the setting was
+    unreachable. These commands make ModMenu genuinely optional: everything the screen can
+    do, /asr can do, from a vanilla client or the server console.
+
+    The tree is loader-neutral -- each loader only has to hand us its CommandDispatcher and a
+    Sync callback for the S2C broadcast, since that part IS loader-specific.
+    """
+    gate, gate_imports = command_gate(mcver)
+    imports = [
+        "import com.kishku7.autoshieldreborn.ASRConfig;",
+        "",
+        "import com.mojang.brigadier.CommandDispatcher;",
+        "import com.mojang.brigadier.arguments.IntegerArgumentType;",
+        "",
+        "import net.minecraft.commands.CommandSourceStack;",
+        "import net.minecraft.commands.Commands;",
+        "import net.minecraft.network.chat.Component;",
+        "import net.minecraft.server.MinecraftServer;",
+    ] + gate_imports
+    return (
+        "package com.kishku7.autoshieldreborn.command;\n\n"
+        + "\n".join(imports) + "\n\n"
+        "/**\n"
+        " * The /asr command tree - the ModMenu-free way to read and change the mod's settings.\n"
+        " *\n"
+        " * <p>Subcommands:\n"
+        " * <ul>\n"
+        " *   <li>{@code /asr} - show the current durability cost (anyone).</li>\n"
+        " *   <li>{@code /asr durability} - the same, explicitly.</li>\n"
+        " *   <li>{@code /asr durability <0-10>} - set it (op only); persists and syncs to clients.</li>\n"
+        " *   <li>{@code /asr reload} - re-read the config file from disk (op only).</li>\n"
+        " * </ul>\n"
+        " */\n"
+        "public final class ASRCommands {\n\n"
+        "    /** Loader-specific S2C broadcast of a new cost (Fabric/NeoForge/Forge each pass their own). */\n"
+        "    @FunctionalInterface\n"
+        "    public interface Sync {\n"
+        "        void broadcast(MinecraftServer server, int cost);\n"
+        "    }\n\n"
+        "    private ASRCommands() {\n    }\n\n"
+        "    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, Sync sync) {\n"
+        "        dispatcher.register(Commands.literal(\"asr\")\n"
+        "                .executes(ctx -> show(ctx.getSource()))\n"
+        "                .then(Commands.literal(\"durability\")\n"
+        "                        .executes(ctx -> show(ctx.getSource()))\n"
+        "                        .then(Commands.argument(\"value\",\n"
+        "                                        IntegerArgumentType.integer(ASRConfig.MIN_COST, ASRConfig.MAX_COST))\n"
+        "                                .requires(" + gate + ")\n"
+        "                                .executes(ctx -> set(ctx.getSource(),\n"
+        "                                        IntegerArgumentType.getInteger(ctx, \"value\"), sync))))\n"
+        "                .then(Commands.literal(\"reload\")\n"
+        "                        .requires(" + gate + ")\n"
+        "                        .executes(ctx -> reload(ctx.getSource(), sync))));\n"
+        "    }\n\n"
+        "    private static int show(CommandSourceStack source) {\n"
+        "        int cost = ASRConfig.durabilityCost();\n"
+        "        String detail = cost == 0\n"
+        "                ? \" (0 = the shield never wears)\"\n"
+        "                : \" durability per blocked hit\";\n"
+        "        source.sendSuccess(() -> Component.literal(\"[ASR] durability cost: \" + cost + detail), false);\n"
+        "        return cost;\n"
+        "    }\n\n"
+        "    private static int set(CommandSourceStack source, int requested, Sync sync) {\n"
+        "        int applied = ASRConfig.setDurabilityCost(requested);\n"
+        "        MinecraftServer server = source.getServer();\n"
+        "        if (server != null) {\n"
+        "            sync.broadcast(server, applied);\n"
+        "        }\n"
+        "        source.sendSuccess(() -> Component.literal(\"[ASR] durability cost set to \" + applied), true);\n"
+        "        return applied;\n"
+        "    }\n\n"
+        "    private static int reload(CommandSourceStack source, Sync sync) {\n"
+        "        int cost = ASRConfig.reload();\n"
+        "        MinecraftServer server = source.getServer();\n"
+        "        if (server != null) {\n"
+        "            sync.broadcast(server, cost);\n"
+        "        }\n"
+        "        source.sendSuccess(() -> Component.literal(\"[ASR] config reloaded - durability cost: \" + cost), true);\n"
+        "        return cost;\n"
+        "    }\n}\n"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Entrypoints (per loader, D15) + client
 # ---------------------------------------------------------------------------
 
 def fabric_entrypoint(mcver=None):
-    """Fabric main entrypoint AutoShieldReborn.java (ModInitializer + MOD_ID + LOGGER). Invariant."""
+    """Fabric main entrypoint AutoShieldReborn.java (ModInitializer + MOD_ID + LOGGER + /asr)."""
     return (
         "package com.kishku7.autoshieldreborn;\n\n"
-        "import com.kishku7.autoshieldreborn.net.ASRNetworking;\n\n"
+        "import com.kishku7.autoshieldreborn.command.ASRCommands;\n"
+        "import com.kishku7.autoshieldreborn.net.ASRNetworking;\n"
+        "import com.kishku7.autoshieldreborn.net.SyncDurabilityPayload;\n\n"
         "import net.fabricmc.api.ModInitializer;\n"
-        "import net.fabricmc.loader.api.FabricLoader;\n\n"
+        "import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;\n"
+        "import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;\n"
+        "import net.fabricmc.loader.api.FabricLoader;\n"
+        "import net.minecraft.server.level.ServerPlayer;\n\n"
         "import org.slf4j.Logger;\n"
         "import org.slf4j.LoggerFactory;\n\n"
-        "/** Auto-Shield Reborn - Fabric entrypoint. Loads config + registers server-side networking. */\n"
+        "/**\n"
+        " * Auto-Shield Reborn - Fabric entrypoint. Loads config, registers server-side networking,\n"
+        " * and registers the /asr command tree so the mod is fully usable WITHOUT ModMenu.\n"
+        " */\n"
         "public class AutoShieldReborn implements ModInitializer {\n"
         "    public static final String MOD_ID = \"autoshield_reborn\";\n"
         "    public static final Logger LOGGER = LoggerFactory.getLogger(\"Auto-Shield Reborn\");\n\n"
@@ -503,6 +620,12 @@ def fabric_entrypoint(mcver=None):
         "    public void onInitialize() {\n"
         "        ASRConfig.init(FabricLoader.getInstance().getConfigDir());\n"
         "        ASRNetworking.register();\n"
+        "        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->\n"
+        "                ASRCommands.register(dispatcher, (server, cost) -> {\n"
+        "                    for (ServerPlayer online : server.getPlayerList().getPlayers()) {\n"
+        "                        ServerPlayNetworking.send(online, new SyncDurabilityPayload(cost));\n"
+        "                    }\n"
+        "                }));\n"
         "        LOGGER.info(\"[ASR] ready - durability cost per blocked hit: {}\", ASRConfig.durabilityCost());\n"
         "    }\n}\n"
     )
@@ -793,6 +916,7 @@ def neoforge_entrypoint(mcver, loader=None):
     return (
         "package com.kishku7.autoshieldreborn;\n\n"
         "import com.kishku7.autoshieldreborn.client.AutoShieldRebornNeoForgeClient;\n"
+        "import com.kishku7.autoshieldreborn.command.ASRCommands;\n"
         "import com.kishku7.autoshieldreborn.net.SetDurabilityPayload;\n"
         "import com.kishku7.autoshieldreborn.net.SyncDurabilityPayload;\n\n"
         "import net.minecraft.server.level.ServerPlayer;\n"
@@ -803,6 +927,7 @@ def neoforge_entrypoint(mcver, loader=None):
         "import net.neoforged.fml.common.Mod;\n"
         "import net.neoforged.fml.loading.FMLPaths;\n"
         "import net.neoforged.neoforge.common.NeoForge;\n"
+        "import net.neoforged.neoforge.event.RegisterCommandsEvent;\n"
         "import net.neoforged.neoforge.event.entity.player.PlayerEvent;\n"
         "import net.neoforged.neoforge.network.PacketDistributor;\n"
         "import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;\n"
@@ -814,10 +939,16 @@ def neoforge_entrypoint(mcver, loader=None):
         "        ASRConfig.init(FMLPaths.CONFIGDIR.get());\n"
         "        bus.addListener(this::registerPayloads);\n"
         "        NeoForge.EVENT_BUS.addListener(this::onPlayerJoin);\n"
+        "        NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);\n"
         "        if (dist.isClient()) {\n"
         "            AutoShieldRebornNeoForgeClient.init(mod);\n"
         "        }\n"
         "        AutoShieldReborn.LOGGER.info(\"[ASR] ready - durability cost per blocked hit: {}\", ASRConfig.durabilityCost());\n"
+        "    }\n\n"
+        "    /** /asr - keeps every setting reachable with ModMenu absent. */\n"
+        "    private void onRegisterCommands(RegisterCommandsEvent event) {\n"
+        "        ASRCommands.register(event.getDispatcher(),\n"
+        "                (server, cost) -> PacketDistributor.sendToAllPlayers(new SyncDurabilityPayload(cost)));\n"
         "    }\n\n"
         "    private void registerPayloads(RegisterPayloadHandlersEvent event) {\n"
         "        PayloadRegistrar registrar = event.registrar(AutoShieldReborn.MOD_ID).versioned(\"1.0.0\");\n\n"
@@ -883,8 +1014,10 @@ def forge_entrypoint(mcver, loader=None):
     eb7 = forge_eb7(mcver)
     common_imports = (
         "import com.kishku7.autoshieldreborn.client.AutoShieldRebornForgeClient;\n"
+        "import com.kishku7.autoshieldreborn.command.ASRCommands;\n"
         "import com.kishku7.autoshieldreborn.net.ASRForgeNetworking;\n"
         "import net.minecraft.server.level.ServerPlayer;\n"
+        "import net.minecraftforge.event.RegisterCommandsEvent;\n"
         "import net.minecraftforge.event.entity.player.PlayerEvent;\n"
         "import net.minecraftforge.fml.common.Mod;\n"
         "import net.minecraftforge.fml.loading.FMLEnvironment;\n"
@@ -902,6 +1035,7 @@ def forge_entrypoint(mcver, loader=None):
             "        BusGroup modBus = context.getModBusGroup();\n"
             "        ASRForgeNetworking.init();\n"
             "        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(AutoShieldRebornForge::onJoin);\n"
+            "        RegisterCommandsEvent.BUS.addListener(AutoShieldRebornForge::onRegisterCommands);\n"
             "        if (FMLEnvironment.dist.isClient()) {\n"
             "            AutoShieldRebornForgeClient.init(modBus);\n"
             "        }\n"
@@ -922,6 +1056,7 @@ def forge_entrypoint(mcver, loader=None):
             "        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();\n"
             "        ASRForgeNetworking.init();\n"
             "        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent e) -> onJoin(e));\n"
+            "        MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> onRegisterCommands(e));\n"
             "        if (FMLEnvironment.dist.isClient()) {\n"
             "            AutoShieldRebornForgeClient.init(modBus);\n"
             "        }\n"
@@ -939,6 +1074,14 @@ def forge_entrypoint(mcver, loader=None):
         "        if (event.getEntity() instanceof ServerPlayer player) {\n"
         "            ASRForgeNetworking.sendSync(player, ASRConfig.durabilityCost());\n"
         "        }\n"
+        "    }\n\n"
+        "    /** /asr - keeps every setting reachable with ModMenu absent. */\n"
+        "    private static void onRegisterCommands(RegisterCommandsEvent event) {\n"
+        "        ASRCommands.register(event.getDispatcher(), (server, cost) -> {\n"
+        "            for (ServerPlayer online : server.getPlayerList().getPlayers()) {\n"
+        "                ASRForgeNetworking.sendSync(online, cost);\n"
+        "            }\n"
+        "        });\n"
         "    }\n"
         "}\n"
     )

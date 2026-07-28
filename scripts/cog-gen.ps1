@@ -61,6 +61,8 @@ $cogTargets = @()
 # loader-neutral cog files (present on every cell)
 $cogTargets += Place 'mixin/AutoShieldMixin.java'      "$pkg/mixin/AutoShieldMixin.java"
 $cogTargets += Place 'client/ASRConfigScreen.java'     "$pkg/client/ASRConfigScreen.java"
+# /asr commands: loader- AND era-neutral (brigadier, no payload API involved) -> every cell.
+$cogTargets += Place 'command/ASRCommands.java'        "$pkg/command/ASRCommands.java"
 # payload API + ClientNet facade: payload era only (>=1.20.5)
 if ($hasPayload -eq '1') {
     $cogTargets += Place 'net/SetDurabilityPayload.java'  "$pkg/net/SetDurabilityPayload.java"

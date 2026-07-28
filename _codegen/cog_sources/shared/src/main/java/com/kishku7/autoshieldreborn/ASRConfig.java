@@ -62,6 +62,16 @@ public final class ASRConfig {
         load();
     }
 
+    /**
+     * Re-read the config file from disk and return the value now in force. Used by
+     * {@code /asr reload} so an admin can hand-edit the JSON and apply it without a restart
+     * (and without ModMenu).
+     */
+    public static int reload() {
+        load();
+        return durabilityCost;
+    }
+
     private static void load() {
         if (file == null) {
             return;

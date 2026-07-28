@@ -4,6 +4,46 @@ All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
 Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
 
+## [1.2.0] - 2026-07-28
+
+### Added
+- **`/asr` commands -- ModMenu is now genuinely optional.** Every setting the ModMenu config
+  screen can reach is now reachable from a command, so ModMenu can be dropped at any time
+  (and a vanilla client or the server console can drive it):
+  - `/asr` or `/asr durability` -- show the current durability cost (anyone).
+  - `/asr durability <0-10>` -- set it (op only). Persists to the config file and broadcasts
+    the new value to every connected client, exactly like the screen did.
+  - `/asr reload` -- re-read the config file from disk and re-sync (op only), so a hand-edited
+    JSON can be applied without a restart.
+  The tree lives in ONE loader-neutral class (`command/ASRCommands.java`, cog-emitted); each
+  loader supplies only its `CommandDispatcher` and an S2C broadcast callback, since that part
+  is genuinely loader-specific. Registered on Fabric via `CommandRegistrationCallback`, and on
+  NeoForge/Forge via `RegisterCommandsEvent` (both the EB6 and EB7 wiring).
+- `ASRConfig.reload()` backing `/asr reload`.
+
+### Fixed
+- **All three 26.x ModMenu pins were pointing at the wrong MC line.** ModMenu ships a separate
+  major per MC line, and an older major is INTERMEDIARY-named, so it cannot compile against a
+  newer mojmap MC. The 26.1 row pinned `17.0.0-beta.1` -- which is the **1.21.11** line -- and
+  that is what broke the 26.1 cell (`cannot access class_437`). 26.2 and 26.3 were both pinned
+  to 26.1-era ModMenu and only compiled by luck, since ASR touches just the `ModMenuApi` /
+  `ConfigScreenFactory` surface. Corrected to the real per-line versions:
+  **26.1 -> 18.0.0, 26.2 -> 20.0.1, 26.3 -> 21.0.0-alpha.1**. The Fabric 26.1 cell builds again.
+
+### Changed
+- Version 1.1.3 -> **1.2.0** (minor: new user-facing feature).
+
+### Verified
+- Fabric 26.1 / 26.2 / 26.3 and NeoForge 26.1 / 26.2 all build clean (0 javac warnings).
+- Forge validated on BOTH event-bus eras: 1.20.1 (EB6 + SimpleChannel) and 1.21.8 (EB7).
+- **Behavioural**, on the Raider 26.3-snapshot-6 dedicated server: `/asr` reported cost 1,
+  `/asr durability 4` applied and echoed, `/asr` read back 4, `/asr reload` re-read 4, and the
+  value was confirmed written to `config/autoshield-reborn.json`.
+
+### Known gap (unchanged from 1.1.3)
+- ASR still has **no `scripts/build-forge.ps1`**; the Forge cells have to be driven cell-by-cell
+  through their own `gradlew`. Every other loader has a canonical build script.
+
 ## [1.1.3] - 2026-07-28
 
 ### Fixed
