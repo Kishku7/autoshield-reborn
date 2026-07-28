@@ -13,7 +13,7 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot'
 $matrix26 = [ordered]@{
   '26.1' = @{ mc='26.1.2'; api='0.145.3+26.1.1'; loader='0.18.6'; lo='26.1-'; hi='26.2';         modmenu='17.0.0-beta.1' }
   '26.2' = @{ mc='26.2';   api='0.152.1+26.2';   loader='0.19.3'; lo='26.2-'; hi='26.3';         modmenu='18.0.0-beta.1' }
-  '26.3' = @{ mc='26.3-snapshot-5'; api='0.155.3+26.3'; loader='0.19.3'; lo='26.3-alpha.5'; hi='26.3-alpha.6'; modmenu='18.0.0' }
+  '26.3' = @{ mc='26.3-snapshot-6'; api='0.156.1+26.3'; loader='0.19.3'; lo='26.3-alpha.6'; hi='26.3-alpha.7'; modmenu='18.0.0' }
 }
 
 function Copy-Jar($cell, $label) {
@@ -40,11 +40,17 @@ function Build-Pre($v) {
 function Build-26($v) {
   $cell = Join-Path $root '26'; $m = $matrix26[$v]
   Write-Host "=== ASR Fabric/26 -> $v (mc=$($m.mc)) ==="
+  # MC 26.x compiles at release 25 -- the script-level JAVA_HOME above is JDK 21 for the pre-26
+  # cells, and leaving it set here fails with 'release version 25 not supported'. Swap to 25 for
+  # the 26 line and restore afterwards so a mixed run (pre-26 + 26) still works.
+  $prevJavaHome = $env:JAVA_HOME
+  $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-25.0.1.8-hotspot'
   & $cogGen -Cell 'Fabric/26' -McVer $m.mc -Loader Fabric
   if ($LASTEXITCODE -ne 0) { throw "cog-gen FAILED 26/$v" }
   Push-Location $cell
-  & .\gradlew.bat clean build "-Pmod_version=1.1.0+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
+  & .\gradlew.bat clean build "-Pmod_version=1.1.2+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
   $rc = $LASTEXITCODE; Pop-Location
+  $env:JAVA_HOME = $prevJavaHome
   if ($rc -ne 0) { throw "build FAILED 26/$v" }
   Copy-Jar $cell $v
 }

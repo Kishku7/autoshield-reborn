@@ -4,6 +4,38 @@ All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
 Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
 
+## [1.1.2] - 2026-07-28
+
+### Changed
+- **Fabric 26.3 cell moved to MC 26.3-snapshot-6** (from snapshot-5): fabric-api
+  `0.155.3+26.3` -> `0.156.1+26.3`, exclusive window `[26.3-alpha.5, 26.3-alpha.6)` ->
+  `[26.3-alpha.6, 26.3-alpha.7)`.
+- `scripts/build-fabric.ps1` no longer hard-codes `-Pmod_version=1.1.0` -- it was pinned to a
+  released number, so every rebuild re-used it. Now 1.1.2, computed from CHANGELOG per the
+  global versioning rule.
+
+### Fixed
+- **The Fabric 26 line could not build at all from `build-fabric.ps1`.** The script sets
+  `JAVA_HOME` to JDK 21 at the top for the pre-26 cells and never changed it for the 26 line,
+  which compiles at release 25 -- so `-M26 26.x` died with `error: release version 25 not
+  supported`. `Build-26` now swaps `JAVA_HOME` to JDK 25 for the 26 cells and restores the
+  previous value afterwards, so a mixed pre-26 + 26 run still works.
+
+### Notes
+- **No source change required.** The whole tree was scanned against every snapshot-6 breaking
+  surface (worldgen noise overhaul, Entity invulnerability split, `startSleeping` void ->
+  boolean, `SharedSuggestionProvider` filter parameter, `InputWithModifiers.getDigit()`
+  removal, options-screen reshuffle, terrain multidraw path, block-entity loot helpers) with
+  zero hits.
+
+### Known gap (pre-existing, NOT introduced here)
+- **No ASR 26.x jar ships a `pack.mcmeta`** -- not Fabric 26.1/26.2/26.3, not the NeoForge 26
+  jars. The 26.x rule wants the exact-single range form (`pack_format = min_format =
+  max_format`). Fabric and NeoForge both synthesise usable defaults when the file is absent, so
+  nothing is broken today, but this is a real deviation and fixing it needs build wiring (a
+  per-row `pf` value + a `${packFormat}` placeholder), not a one-line edit. Left for a
+  deliberate pass rather than changed mid-snapshot-bump.
+
 ## [1.1.1] - 2026-07-27
 
 ### Added
