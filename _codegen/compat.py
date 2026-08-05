@@ -174,6 +174,23 @@ def datapack_format(mcver):
         return 71
     return 81
 
+def swing_anim(mcver):
+    """26.3-snapshot-7 removed BOTH the 1-arg swing(InteractionHand) and the 2-arg
+    swing(InteractionHand, boolean) on LivingEntity; the only remaining form is
+    swing(hand, SwingAnimation, sendToSwingingEntity). Deobf-confirmed from MC-Java
+    26.3-snapshot-6 vs 26.3-snapshot-7, LivingEntity.java L2037/L2041 -> L2039."""
+    return _parse(mcver) >= (26, 3)
+
+
+def _mixin_swing(mcver):
+    """The auto-block feedback swing. The sendToSwingingEntity flag stays TRUE (this mixin runs
+    server-side and ASR wants the blocking player to see their own swing). On 26.3+ the animation
+    is the shield's own INTERACT animation -- a block is a use-path action, which is the animation
+    vanilla threads through its own interact sites."""
+    if swing_anim(mcver):
+        return "        player.swing(hand, shield.getInteractAnimation(), true);"
+    return "        player.swing(hand, true);"
+
 def resource_format(mcver):
     """RESOURCE pack_format for a 26.x version, or None below 26.
 
@@ -182,13 +199,13 @@ def resource_format(mcver):
     A plain int > 81 FATALs the NeoForge dedicated-server datapack load, and the pre-26
     "supported_formats" shape is rejected outright. Values are the resource major read out
     of each line's SharedConstants (authority: Memory/knowledge/pack-formats.md):
-    26.1 -> 84, 26.2 -> 88, 26.3 -> 94 (snapshot-6; earlier 26.3 snapshots were 89-93).
+    26.1 -> 84, 26.2 -> 88, 26.3 -> 95 (snapshot-7; earlier 26.3 snapshots were 89-94).
     """
     v = _parse(mcver)
     if v[0] < 26:
         return None
     line = v[1] if len(v) > 1 else 0
-    return {1: 84, 2: 88, 3: 94}.get(line, 94)
+    return {1: 84, 2: 88, 3: 95}.get(line, 95)
 
 
 _MIXIN_HEAD = "package com.kishku7.autoshieldreborn.mixin;\n\nimport com.kishku7.autoshieldreborn.ASRConfig;\n\n"
@@ -256,14 +273,14 @@ def _mixin_feedback_and_end(mcver):
         "        %s.playSound(null, player.getX(), player.getY(), player.getZ(),\n"
         "                SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 1.0F,\n"
         "                0.8F + %s.getRandom().nextFloat() * 0.4F);\n"
-        "        player.swing(hand, true);\n"
+        "%s\n"
         "        int cost = ASRConfig.durabilityCost();\n"
         "        if (cost > 0) {\n"
         "%s\n"
         "        }\n"
         "        %s\n"
         "    }\n"
-        "}\n" % (lvl, lvl, _mixin_durability_block(mcver), ret)
+        "}\n" % (lvl, lvl, _mixin_swing(mcver), _mixin_durability_block(mcver), ret)
     )
 
 
@@ -489,14 +506,16 @@ def net_source(mcver, loader=None):
 def command_gate(mcver):
     """The `.requires(...)` argument for an op-gated /asr subcommand, plus its imports.
 
-    26.x DELETED `CommandSourceStack.hasPermission(int)`; the vanilla shape is now
-    `Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER))`
-    (read out of 26.3-snapshot-6 GameModeCommand). Pre-26 keeps the int form, and 1.20.1 has
-    no `Commands.hasPermission` helper at all, so the lambda on the source is the one shape
-    that compiles across every pre-26 cell.
+    `CommandSourceStack.hasPermission(int)` is DELETED from **1.21.11** on (not 26, as first
+    assumed -- the Forge/1.21.11 cell caught it): the vanilla shape is
+    `Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER))`,
+    read out of GameModeCommand in BOTH 1.21.11 and 26.3-snapshot-6. Below 1.21.11 the int form
+    stands, and 1.20.1 has no `Commands.hasPermission` helper at all, so the lambda on the source
+    is the one shape that compiles across every older cell. Shares the `modern_permission`
+    boundary with the mod's other permission call sites, so there is ONE definition of "modern".
     Returns (expr, [imports]).
     """
-    if is_26(mcver):
+    if modern_permission(mcver):
         return ("Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER))",
                 ["import net.minecraft.server.permissions.PermissionCheck;",
                  "import net.minecraft.server.permissions.Permissions;"])

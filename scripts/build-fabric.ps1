@@ -13,7 +13,7 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot'
 $matrix26 = [ordered]@{
   '26.1' = @{ mc='26.1.2'; api='0.145.3+26.1.1'; loader='0.18.6'; lo='26.1-'; hi='26.2';         modmenu='18.0.0' }
   '26.2' = @{ mc='26.2';   api='0.152.1+26.2';   loader='0.19.3'; lo='26.2-'; hi='26.3';         modmenu='20.0.1' }
-  '26.3' = @{ mc='26.3-snapshot-6'; api='0.156.1+26.3'; loader='0.19.3'; lo='26.3-alpha.6'; hi='26.3-alpha.7'; modmenu='21.0.0-alpha.1' }
+  '26.3' = @{ mc='26.3-snapshot-7'; api='0.156.2+26.3'; loader='0.19.3'; lo='26.3-alpha.7'; hi='26.3-alpha.8'; modmenu='21.0.0-alpha.1' }
 }
 
 function Copy-Jar($cell, $label) {
@@ -48,7 +48,7 @@ function Build-26($v) {
   & $cogGen -Cell 'Fabric/26' -McVer $m.mc -Loader Fabric
   if ($LASTEXITCODE -ne 0) { throw "cog-gen FAILED 26/$v" }
   Push-Location $cell
-  & .\gradlew.bat clean build "-Pmod_version=1.2.0+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
+  & .\gradlew.bat clean build "-Pmod_version=1.2.1+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
   $rc = $LASTEXITCODE; Pop-Location
   $env:JAVA_HOME = $prevJavaHome
   if ($rc -ne 0) { throw "build FAILED 26/$v" }

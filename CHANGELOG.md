@@ -4,6 +4,34 @@ All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
 Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
 
+## [1.2.1] - 2026-08-05
+
+### Fixed
+- **`LivingEntity.swing(InteractionHand, boolean)` is GONE at 26.3-snapshot-7** -- a hard compile
+  break in the auto-block mixin, which swings the shield hand as block feedback. Both the 1-arg and
+  2-arg overloads were removed; the only remaining form is
+  `swing(hand, SwingAnimation, sendToSwingingEntity)`. Now emitted per version by the codegen
+  (`compat.swing_anim`, `>= 26.3`): 26.3+ passes the shield's own
+  `getInteractAnimation()` -- a block is a use-path action, which is the animation vanilla threads
+  through its own interact sites -- and every earlier cell keeps the plain 2-arg call. The
+  `sendToSwingingEntity` flag stays `true` either way: this mixin runs server-side and the blocking
+  player should see their own swing.
+
+### Changed
+- **Fabric 26.3 cell moved to MC 26.3-snapshot-7** (from snapshot-6): fabric-api
+  `0.156.1+26.3` -> `0.156.2+26.3`, resource `pack_format` `94` -> `95` (bumped in
+  `_codegen/compat.py` `resource_format`, the mod's single source for that value), exclusive window
+  `[26.3-alpha.6, 26.3-alpha.7)` -> `[26.3-alpha.7, 26.3-alpha.8)`. Every 26.3 snapshot bumps
+  pack_format by one, so each jar stays snapshot-exclusive. ModMenu stays on `21.0.0-alpha.1`
+  (still the 26.3-line major). No other cell changed.
+
+### Notes
+- The other snapshot-7 breaking surfaces do not touch ASR: the trailing `Prediction` argument on
+  `LivingEntity.drop(ItemStack, boolean)` / `Inventory.placeItemBackInInventory` (ASR neither drops
+  nor returns items), the client-side `LocalPlayer.drop(boolean)` return-type change, the
+  `InteractionResult.SwingSource` `CLIENT`/`SERVER` -> `PREDICTED`/`SERVER_ONLY` rename (ASR uses
+  only the plain `InteractionResult` constants), and the 32 new concrete slab/stair blocks plus the
+  filled-map colour component removals.
 ## [1.2.0] - 2026-07-28
 
 ### Added
