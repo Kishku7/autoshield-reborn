@@ -198,7 +198,7 @@ def resource_format(mcver):
     EXACT-SINGLE RANGE form (pack_format = min_format = max_format = <resource major>).
     A plain int > 81 FATALs the NeoForge dedicated-server datapack load, and the pre-26
     "supported_formats" shape is rejected outright. Values are the resource major read out
-    of each line's SharedConstants (authority: Memory/knowledge/pack-formats.md):
+    of each line's SharedConstants, read out of the MC build itself:
     26.1 -> 84, 26.2 -> 88, 26.3 -> 97.
 
     Do NOT extrapolate this number. The 26.3 line moved it on nearly every build -- 89, 90, 91, 92,

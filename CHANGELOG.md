@@ -2,7 +2,7 @@
 
 All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
-Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
+Versioning policy is universal across all Kishku7 mods and is deliberately NOT restated here.
 
 ## [1.3.0] - 2026-09-18
 

@@ -4,7 +4,7 @@
 # The NeoForge/26 cell is PARAMETERIZED: one cell builds both 26.1 and 26.2 via -P overrides, exactly
 # like the other mods' 26 cells. A bare `gradlew build` uses only the checked-in gradle.properties
 # defaults AND a stale gen/ tree (gen/ is gitignored and produced by cog-gen) -- so ALWAYS build
-# through this script. Pin doctrine + the do-not-normalize rule for neoRange: Memory/minecraft/version-gates.md.
+# through this script. neoRange is written as upstream publishes it and is deliberately never normalized.
 param([Parameter(ValueFromRemainingArguments)][string[]]$Only)
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
