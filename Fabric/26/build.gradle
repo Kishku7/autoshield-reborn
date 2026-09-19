@@ -29,6 +29,11 @@ dependencies {
     compileOnly localRuntime("net.fabricmc:fabric-loader:${project.loader_version}")
     compileOnly localRuntime("net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}")
     compileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
+    // gson's GsonBuilder carries ErrorProne @InlineMe annotations. Without the annotation classes on
+    // the compile classpath javac cannot resolve them and emits two [classfile] warnings, which the
+    // zero-warning gate counts. Making them resolvable is the IDEAL fix, not a suppression: nothing
+    // is shipped (compileOnly) and every -Xlint category stays on.
+    compileOnly "com.google.errorprone:error_prone_annotations:2.28.0"
 }
 
 processResources {

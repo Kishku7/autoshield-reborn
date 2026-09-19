@@ -4,6 +4,33 @@ All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
 Versioning policy is universal across all mods and is NOT restated here -- see Memory/minecraft/mod-rules.md.
 
+## [1.3.0] - 2026-09-18
+
+### Added
+- **NeoForge support on MC 26.3.** The 26 NeoForge matrix stopped at 26.2. NeoForge does ship 26.3
+  (now `26.3.0.6-beta`); the actual blocker was ModDevGradle. On 2.0.140 the NFRT
+  `:createMinecraftArtifacts` recompile dies inside Minecraft's own source -- NeoForge's access
+  transformer widens `HolderSet.Named.contents()` to public and the widening is not propagated to the
+  anonymous subclass `HolderSet.emptyNamed` returns, so javac rejects the recompiled game before a
+  line of mod source is compiled. MDG 2.0.147 builds the identical cell clean.
+
+### Changed
+- **26.3 cell moved from MC 26.3-snapshot-7 to MC 26.3 (stable, 2026-09-15).** The snapshot-exclusive
+  single-build pin is replaced by the ordinary closed prerelease-inclusive range `>=26.3- <26.4`
+  (Fabric) / `[26.3,26.4)` (NeoForge). Resource `pack_format` `95` -> `97` in
+  `compat.resource_format()`, read from 26.3's own `resources/version.json`.
+- fabric-api `0.156.2+26.3` -> `0.161.0+26.3`, fabric-loader `0.19.3` -> `0.19.5`,
+  ModMenu `21.0.0-alpha.1` -> `21.0.0-beta.1`, NeoForge `26.3.0.6-beta`, ModDevGradle `2.0.147`.
+
+### Notes
+- **No source change required, and the one gate that looked dangerous is not.** 26.3-rc-1
+  re-signatured `LivingEntity.blockUsingItem` and `blockedByItem` (both gain a trailing
+  `boolean fullyBlocked`) and changed behaviour so a fully blocked hit no longer knocks the attacker
+  back. That is the obvious hazard for a shield mod, but ASR does not touch either method: its
+  blocking path goes through the `BLOCKS_ATTACKS` data component on the item, which rc-1 leaves
+  alone. The snapshot-7 `swing` break was already handled by `compat.swing_anim()` in 1.2.1.
+- Only the 26.3 cells were rebuilt; every other cell keeps the version it already shipped.
+
 ## [1.2.1] - 2026-08-05
 
 ### Fixed

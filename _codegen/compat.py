@@ -199,13 +199,18 @@ def resource_format(mcver):
     A plain int > 81 FATALs the NeoForge dedicated-server datapack load, and the pre-26
     "supported_formats" shape is rejected outright. Values are the resource major read out
     of each line's SharedConstants (authority: Memory/knowledge/pack-formats.md):
-    26.1 -> 84, 26.2 -> 88, 26.3 -> 95 (snapshot-7; earlier 26.3 snapshots were 89-94).
+    26.1 -> 84, 26.2 -> 88, 26.3 -> 97.
+
+    Do NOT extrapolate this number. The 26.3 line moved it on nearly every build -- 89, 90, 91, 92,
+    93, 94, 95 across snapshots 1-7 -- and then jumped TWO at 26.3-pre-1, skipping 96 entirely, to
+    97, where it held through pre-2, pre-3, rc-1 and the 26.3 release. Read it out of the build's own
+    resources/version.json (or SharedConstants) every time.
     """
     v = _parse(mcver)
     if v[0] < 26:
         return None
     line = v[1] if len(v) > 1 else 0
-    return {1: 84, 2: 88, 3: 95}.get(line, 95)
+    return {1: 84, 2: 88, 3: 97}.get(line, 97)
 
 
 _MIXIN_HEAD = "package com.kishku7.autoshieldreborn.mixin;\n\nimport com.kishku7.autoshieldreborn.ASRConfig;\n\n"

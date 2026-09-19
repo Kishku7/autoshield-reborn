@@ -17,6 +17,12 @@ Remove-Item $prog -ErrorAction SilentlyContinue
 $matrix26 = [ordered]@{
     '26.1' = @{ mc='26.1.2'; neo='26.1.2.87';      mcRange='[26.1,26.2)'; neoRange='[26.1.0-alpha,)' }
     '26.2' = @{ mc='26.2';   neo='26.2.0.35-beta'; mcRange='[26.2,26.3)'; neoRange='[26.2.0-alpha,)' }
+    # 26.3 NeoForge EXISTS (26.3.0.6-beta). The blocker was ModDevGradle, not the loader: on 2.0.140
+    # the NFRT :createMinecraftArtifacts recompile fails inside Minecraft's OWN source (NeoForge's
+    # access transformer widens HolderSet.Named.contents() to public and the widening is not
+    # propagated to the anonymous subclass HolderSet.emptyNamed returns), before any mod source is
+    # compiled. MDG 2.0.147 builds it clean -- bumped in NeoForge/26/gradle.properties.
+    '26.3' = @{ mc='26.3';   neo='26.3.0.6-beta';  mcRange='[26.3,26.4)'; neoRange='[26.3.0-alpha,)' }
 }
 $keys26 = if ($Only) { @($matrix26.Keys) | Where-Object { $Only -contains $_ } } else { @($matrix26.Keys) }
 if (-not $keys26) { throw "no matching 26.X target in: $($Only -join ', ')" }
