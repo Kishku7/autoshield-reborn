@@ -16,8 +16,8 @@ $dist   = Join-Path $repo 'dist'
 $cogGen = Join-Path $PSScriptRoot 'cog-gen.ps1'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 
-$JDK17 = 'C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot'
-$JDK21 = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot'
+$JDK17 = ((Get-ChildItem 'C:\Program Files\Eclipse Adoptium' -Directory -Filter 'jdk-17.*' | Sort-Object { [version]($_.Name -replace '^jdk-|-hotspot$','') } -Descending | Select-Object -First 1).FullName)
+$JDK21 = ((Get-ChildItem 'C:\Program Files\Eclipse Adoptium' -Directory -Filter 'jdk-21.*' | Sort-Object { [version]($_.Name -replace '^jdk-|-hotspot$','') } -Descending | Select-Object -First 1).FullName)
 
 function Jdk-For($v) {
     $p = $v.Split('.')

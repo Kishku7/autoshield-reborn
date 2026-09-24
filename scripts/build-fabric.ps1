@@ -8,7 +8,7 @@ $root   = Join-Path $repo 'Fabric'
 $dist   = Join-Path $repo 'dist'
 $cogGen = Join-Path $PSScriptRoot 'cog-gen.ps1'
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
-$env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.9.10-hotspot'
+$env:JAVA_HOME = ((Get-ChildItem 'C:\Program Files\Eclipse Adoptium' -Directory -Filter 'jdk-21.*' | Sort-Object { [version]($_.Name -replace '^jdk-|-hotspot$','') } -Descending | Select-Object -First 1).FullName)
 
 $matrix26 = [ordered]@{
   '26.1' = @{ mc='26.1.2'; api='0.145.3+26.1.1'; loader='0.18.6'; lo='26.1-'; hi='26.2';         modmenu='18.0.0' }
@@ -46,7 +46,7 @@ function Build-26($v) {
   # cells, and leaving it set here fails with 'release version 25 not supported'. Swap to 25 for
   # the 26 line and restore afterwards so a mixed run (pre-26 + 26) still works.
   $prevJavaHome = $env:JAVA_HOME
-  $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-25.0.1.8-hotspot'
+  $env:JAVA_HOME = ((Get-ChildItem 'C:\Program Files\Eclipse Adoptium' -Directory -Filter 'jdk-25.*' | Sort-Object { [version]($_.Name -replace '^jdk-|-hotspot$','') } -Descending | Select-Object -First 1).FullName)
   & $cogGen -Cell 'Fabric/26' -McVer $m.mc -Loader Fabric
   if ($LASTEXITCODE -ne 0) { throw "cog-gen FAILED 26/$v" }
   Push-Location $cell
