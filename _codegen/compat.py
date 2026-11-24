@@ -508,6 +508,14 @@ def net_source(mcver, loader=None):
 # /asr commands (D-series: keep the mod fully usable with ModMenu absent)
 # ---------------------------------------------------------------------------
 
+def int_arg_wrapped(mcver):
+    """26.4 only accepts serialisable command arguments: raw Brigadier IntegerArgumentType makes
+    Commands.<init> throw "Invalid argument type: integer(0, 10)" and the server never finishes
+    loading. net.minecraft.commands.arguments.IntegerArgument has the same factory names."""
+    v = _parse(mcver)
+    return v[0] > 26 or (v[0] == 26 and v[1] >= 4)
+
+
 def command_gate(mcver):
     """The `.requires(...)` argument for an op-gated /asr subcommand, plus its imports.
 
@@ -540,11 +548,17 @@ def commands_source(mcver, loader=None):
     Sync callback for the S2C broadcast, since that part IS loader-specific.
     """
     gate, gate_imports = command_gate(mcver)
+    if int_arg_wrapped(mcver):
+        int_import = "import net.minecraft.commands.arguments.IntegerArgument;"
+        int_type = "IntegerArgument"
+    else:
+        int_import = "import com.mojang.brigadier.arguments.IntegerArgumentType;"
+        int_type = "IntegerArgumentType"
     imports = [
         "import com.kishku7.autoshieldreborn.ASRConfig;",
         "",
         "import com.mojang.brigadier.CommandDispatcher;",
-        "import com.mojang.brigadier.arguments.IntegerArgumentType;",
+        int_import,
         "",
         "import net.minecraft.commands.CommandSourceStack;",
         "import net.minecraft.commands.Commands;",
@@ -578,10 +592,10 @@ def commands_source(mcver, loader=None):
         "                .then(Commands.literal(\"durability\")\n"
         "                        .executes(ctx -> show(ctx.getSource()))\n"
         "                        .then(Commands.argument(\"value\",\n"
-        "                                        IntegerArgumentType.integer(ASRConfig.MIN_COST, ASRConfig.MAX_COST))\n"
+        "                                        " + int_type + ".integer(ASRConfig.MIN_COST, ASRConfig.MAX_COST))\n"
         "                                .requires(" + gate + ")\n"
         "                                .executes(ctx -> set(ctx.getSource(),\n"
-        "                                        IntegerArgumentType.getInteger(ctx, \"value\"), sync))))\n"
+        "                                        " + int_type + ".getInteger(ctx, \"value\"), sync))))\n"
         "                .then(Commands.literal(\"reload\")\n"
         "                        .requires(" + gate + ")\n"
         "                        .executes(ctx -> reload(ctx.getSource(), sync))));\n"

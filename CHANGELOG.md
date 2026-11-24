@@ -4,6 +4,12 @@ All notable changes to Auto-Shield Reborn are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Jars are suffixed with the Minecraft version.
 Versioning policy is universal across all Kishku7 mods and is deliberately NOT restated here.
 
+## [1.4.0] - 2026-11-24 (Fabric 26.4 cell only)
+
+### Added
+- **Minecraft 26.4 (pre-release 1) support on Fabric.** New 26.4 cell, pinned to 26.4-pre-1 (pack_format 104). The jar
+  accepts 26.4-pre.1 only, like every pre-release build of a new line; the other lines are not rebuilt.
+
 ## [1.3.0] - 2026-09-18
 
 ### Added

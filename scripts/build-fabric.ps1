@@ -16,6 +16,9 @@ $matrix26 = [ordered]@{
   # 26.3 went STABLE 2026-09-15: the snapshot-exclusive window is gone, replaced by the ordinary
   # closed prerelease-inclusive range. pack_format comes from compat.resource_format() (97).
   '26.3' = @{ mc='26.3';   api='0.161.0+26.3';   loader='0.19.5'; lo='26.3-'; hi='26.4';           modmenu='21.0.0-beta.1' }
+  # 26.4 is still in pre-release: exclusive single-build window; pack_format comes from compat.resource_format().
+  # ModMenu has no 26.4 build yet; compile against the 26.3 one.
+  '26.4' = @{ mc='26.4-pre-1'; api='0.167.1+26.4'; loader='0.19.5'; lo='26.4-pre.1'; hi='26.4-pre.2'; modmenu='21.0.0-beta.1'; modver='1.4.0' }
 }
 
 function Copy-Jar($cell, $label) {
@@ -50,7 +53,7 @@ function Build-26($v) {
   & $cogGen -Cell 'Fabric/26' -McVer $m.mc -Loader Fabric
   if ($LASTEXITCODE -ne 0) { throw "cog-gen FAILED 26/$v" }
   Push-Location $cell
-  & .\gradlew.bat clean build "-Pmod_version=1.3.0+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
+  & .\gradlew.bat clean build "-Pmod_version=$(if ($m.modver) { $m.modver } else { '1.3.0' })+$v" "-Pminecraft_version=$($m.mc)" "-Pfabric_api_version=$($m.api)" "-Ploader_version=$($m.loader)" "-Pminecraft_range=>=$($m.lo) <$($m.hi)" "-Pmodmenu_version=$($m.modmenu)" --no-daemon
   $rc = $LASTEXITCODE; Pop-Location
   $env:JAVA_HOME = $prevJavaHome
   if ($rc -ne 0) { throw "build FAILED 26/$v" }
