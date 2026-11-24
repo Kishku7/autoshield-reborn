@@ -1,4 +1,4 @@
-# Auto-Shield Reborn - Build Guide (`minecraft-1.20-26.3` branch)
+# Auto-Shield Reborn - Build Guide
 
 The single cross-version source for **Auto-Shield Reborn** on Fabric, Forge, and NeoForge, MC
 **1.20.1 -> 26.3-snapshot-4**. Landing page / what-it-is: the [`main` branch](https://github.com/Kishku7/autoshield-reborn/tree/main).
